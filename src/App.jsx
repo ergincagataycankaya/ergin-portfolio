@@ -1,14 +1,13 @@
-import React, { useEffect, useRef, useState, useMemo } from 'react';
-import { Github, Linkedin, Mail, MapPin, ExternalLink, ChevronDown, Code, Database, TreePine, Scan, Layers, Terminal, Award, BookOpen, Cloud, Cpu, Plane, FileText, GraduationCap } from 'lucide-react';
+import React, { useEffect, useRef, useState } from 'react';
+import { Github, Linkedin, Mail, ChevronDown, Code, Database, TreePine, Scan, Layers, Terminal, Award, BookOpen, Cloud, Cpu, Plane, FileText, GraduationCap } from 'lucide-react';
 
 /**
  * UTILITIES & HOOKS
  * ------------------------------------------------------------------
  */
 
-// Hook for smooth scrolling (simulating Lenis)
+// Hook for smooth scrolling
 const useSmoothScroll = () => {
-  const scrollRef = useRef(null);
   const [scrollY, setScrollY] = useState(0);
 
   useEffect(() => {
@@ -22,7 +21,6 @@ const useSmoothScroll = () => {
 
 /**
  * 3D BACKGROUND COMPONENT (Three.js)
- * Simulates a LiDAR Point Cloud Forest directly relevant to Ergin's CV
  * ------------------------------------------------------------------
  */
 const LidarForest = () => {
@@ -110,10 +108,7 @@ const LidarForest = () => {
       // Animation Loop
       const animate = () => {
         frameId = requestAnimationFrame(animate);
-        
-        // Slow rotation simulating a drone scan
-        particles.rotation.y += 0.0005;
-        
+        if (particles) particles.rotation.y += 0.0005;
         renderer.render(scene, camera);
       };
       animate();
@@ -131,8 +126,8 @@ const LidarForest = () => {
     return () => {
       if (frameId) cancelAnimationFrame(frameId);
       window.removeEventListener('resize', () => {});
-      if (mountRef.current && renderer) {
-        mountRef.current.removeChild(renderer.domElement);
+      if (mountRef.current && mountRef.current.firstChild) {
+        mountRef.current.removeChild(mountRef.current.firstChild);
       }
     };
   }, []);
@@ -145,8 +140,8 @@ const LidarForest = () => {
  * ------------------------------------------------------------------
  */
 
-const Section = ({ title, children, className = "" }) => (
-  <section className={`py-24 px-6 relative z-10 max-w-6xl mx-auto ${className}`}>
+const Section = ({ title, children, className = "", id = "" }) => (
+  <section id={id} className={`py-24 px-6 relative z-10 max-w-6xl mx-auto ${className}`}>
     {title && (
       <h2 className="text-4xl md:text-5xl font-bold mb-16 text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-blue-500 inline-block">
         {title}
@@ -330,7 +325,7 @@ const App = () => {
           </div>
         </Section>
 
-        {/* Education Background (NEW) */}
+        {/* Education Background */}
         <Section title="Education Background">
           <div className="grid md:grid-cols-2 gap-6">
             
