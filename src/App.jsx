@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Github, Linkedin, Mail, ChevronDown, Code, Database, TreePine, Scan, Layers, Terminal, Award, BookOpen, Cloud, Cpu, Plane, FileText, GraduationCap } from 'lucide-react';
+import { Github, Linkedin, Mail, ChevronDown, Code, Database, TreePine, Scan, Layers, Terminal, Award, BookOpen, Cloud, Cpu, Plane, FileText, GraduationCap, Globe, MapPin, Link as LinkIcon, ExternalLink, Box, Network } from 'lucide-react';
 
 /**
  * UTILITIES & HOOKS
@@ -21,33 +21,34 @@ const useSmoothScroll = () => {
 
 /**
  * 3D BACKGROUND COMPONENT (Three.js)
+ * Advanced Dual-Layer: LiDAR Forestry + Satellite Constellation
  * ------------------------------------------------------------------
  */
 const LidarForest = () => {
   const mountRef = useRef(null);
 
   useEffect(() => {
-    // Dynamic import of Three.js from CDN for the single-file environment
     const script = document.createElement('script');
     script.src = 'https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js';
     script.async = true;
     script.onload = initThree;
     document.body.appendChild(script);
 
-    let scene, camera, renderer, particles, frameId;
+    let scene, camera, renderer, frameId;
+    let terrainSystem, treeSystem, globeGroup, sphereSystem;
 
     function initThree() {
       if (!mountRef.current) return;
 
-      // 1. Scene Setup
       const THREE = window.THREE;
+
+      // 1. Scene Setup
       scene = new THREE.Scene();
-      scene.fog = new THREE.FogExp2(0x0a0a0a, 0.02); // Dark fog for depth
+      scene.fog = new THREE.FogExp2(0x050505, 0.015);
 
       // 2. Camera
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.z = 30;
-      camera.position.y = 10;
+      camera.position.set(0, 8, 35);
 
       // 3. Renderer
       renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -55,60 +56,116 @@ const LidarForest = () => {
       renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
       mountRef.current.appendChild(renderer.domElement);
 
-      // 4. Create "LiDAR" Particles (Trees and Terrain)
-      const particleCount = 14000; // Increased density
-      const geometry = new THREE.BufferGeometry();
-      const positions = [];
-      const colors = [];
+      // --- LAYER 1: LiDAR TERRAIN (Bottom) ---
+      const groundGeo = new THREE.BufferGeometry();
+      const groundCount = 15000;
+      const gPos = [];
+      const gCols = [];
+      const cWater = new THREE.Color(0x1e40af); // Deep Blue
+      const cGround = new THREE.Color(0x064e3b); // Dark Green
+      const cHigh = new THREE.Color(0x10b981);   // Bright Emerald
 
-      const color1 = new THREE.Color(0x10b981); // Emerald Green
-      const color2 = new THREE.Color(0x3b82f6); // Tech Blue
-      const color3 = new THREE.Color(0x8b5cf6); // Violet for "Data" points
+      for (let i = 0; i < groundCount; i++) {
+        const x = (Math.random() - 0.5) * 300;
+        const z = (Math.random() - 0.5) * 300;
+        const y = Math.sin(x * 0.04) * Math.cos(z * 0.04) * 5 - 8;
 
-      for (let i = 0; i < particleCount; i++) {
-        // Create a wavy terrain
-        const x = (Math.random() - 0.5) * 160;
-        const z = (Math.random() - 0.5) * 160;
-        let y = Math.sin(x * 0.05) * Math.cos(z * 0.05) * 5;
+        gPos.push(x, y, z);
 
-        // Chance to create a "Tree" trunk (vertical line of points)
-        if (Math.random() > 0.98) {
-          const treeHeight = Math.random() * 10 + 5;
-          for (let j = 0; j < 25; j++) {
-            positions.push(x + (Math.random() - 0.5), y + (j / 20) * treeHeight, z + (Math.random() - 0.5));
-            colors.push(color1.r, color1.g, color1.b);
-          }
-        } else {
-          // Ground points
-          positions.push(x, y, z);
-          // Gradient color based on height
-          if (y > 3) {
-            colors.push(color1.r * 0.8, color1.g * 0.8, color1.b * 0.8); 
-          } else if (y < -2) {
-             colors.push(color3.r, color3.g, color3.b); // Deep data layer
-          } else {
-            colors.push(color2.r * 0.5, color2.g * 0.5, color2.b * 0.5);
-          }
+        let color = cWater;
+        if (y > -9) color = cGround;
+        if (y > -6) color = cHigh;
+        gCols.push(color.r, color.g, color.b);
+      }
+      groundGeo.setAttribute('position', new THREE.Float32BufferAttribute(gPos, 3));
+      groundGeo.setAttribute('color', new THREE.Float32BufferAttribute(gCols, 3));
+      const groundMat = new THREE.PointsMaterial({ size: 0.15, vertexColors: true, transparent: true, opacity: 0.6 });
+      terrainSystem = new THREE.Points(groundGeo, groundMat);
+      scene.add(terrainSystem);
+
+      // Trees (Vertical Lines)
+      const treeGeo = new THREE.BufferGeometry();
+      const treeCount = 2000;
+      const tPos = [];
+      const tCols = [];
+
+      for (let i = 0; i < treeCount; i++) {
+        const x = (Math.random() - 0.5) * 300;
+        const z = (Math.random() - 0.5) * 300;
+        const y = Math.sin(x * 0.04) * Math.cos(z * 0.04) * 5 - 8;
+
+        if (y > -7) { 
+            const h = Math.random() * 4 + 2;
+            tPos.push(x, y, z);
+            tPos.push(x, y + h, z);
+            tCols.push(0.02, 0.3, 0.2); 
+            tCols.push(0.2, 0.9, 0.5); 
         }
       }
+      treeGeo.setAttribute('position', new THREE.Float32BufferAttribute(tPos, 3));
+      treeGeo.setAttribute('color', new THREE.Float32BufferAttribute(tCols, 3));
+      const treeMat = new THREE.LineBasicMaterial({ vertexColors: true, transparent: true, opacity: 0.5 });
+      treeSystem = new THREE.LineSegments(treeGeo, treeMat);
+      scene.add(treeSystem);
 
-      geometry.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
-      geometry.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+      // --- LAYER 2: SATELLITE GLOBE (Top Right) ---
+      globeGroup = new THREE.Group();
+      globeGroup.position.set(18, 12, -10);
+      scene.add(globeGroup);
 
-      const material = new THREE.PointsMaterial({
-        size: 0.12,
-        vertexColors: true,
-        transparent: true,
-        opacity: 0.7,
-      });
+      // Sphere Points
+      const sphereGeo = new THREE.BufferGeometry();
+      const sphereCount = 4000;
+      const sPos = [];
+      const r = 9;
+      for(let i=0; i<sphereCount; i++) {
+        const phi = Math.acos(-1 + (2 * i) / sphereCount);
+        const theta = Math.sqrt(sphereCount * Math.PI) * phi;
+        sPos.push(r * Math.cos(theta) * Math.sin(phi), r * Math.sin(theta) * Math.sin(phi), r * Math.cos(phi));
+      }
+      sphereGeo.setAttribute('position', new THREE.Float32BufferAttribute(sPos, 3));
+      const sphereMat = new THREE.PointsMaterial({ color: 0x3b82f6, size: 0.09, transparent: true, opacity: 0.4 });
+      sphereSystem = new THREE.Points(sphereGeo, sphereMat);
+      globeGroup.add(sphereSystem);
 
-      particles = new THREE.Points(geometry, material);
-      scene.add(particles);
+      // Orbital Rings
+      const ringGeo = new THREE.TorusGeometry(r + 2, 0.05, 16, 100);
+      const ringMat = new THREE.MeshBasicMaterial({ color: 0x10b981, transparent: true, opacity: 0.3 });
+      const ring1 = new THREE.Mesh(ringGeo, ringMat);
+      ring1.rotation.x = Math.PI / 2;
+      globeGroup.add(ring1);
+      const ring2 = new THREE.Mesh(ringGeo, ringMat);
+      ring2.rotation.x = Math.PI / 3;
+      ring2.rotation.y = Math.PI / 6;
+      globeGroup.add(ring2);
 
-      // Animation Loop
+      // 4. Animation Loop
       const animate = () => {
         frameId = requestAnimationFrame(animate);
-        if (particles) particles.rotation.y += 0.0005;
+        
+        // Flyover effect
+        const speed = 0.08;
+        if(terrainSystem) {
+            const pos = terrainSystem.geometry.attributes.position.array;
+            for(let i=2; i<pos.length; i+=3) {
+                pos[i] += speed;
+                if(pos[i] > 30) pos[i] -= 300;
+            }
+            terrainSystem.geometry.attributes.position.needsUpdate = true;
+        }
+        if(treeSystem) {
+             const pos = treeSystem.geometry.attributes.position.array;
+             for(let i=2; i<pos.length; i+=3) {
+                 pos[i] += speed;
+                 if(pos[i] > 30) pos[i] -= 300;
+             }
+             treeSystem.geometry.attributes.position.needsUpdate = true;
+        }
+
+        // Globe rotation
+        if(globeGroup) globeGroup.rotation.y += 0.002;
+        if(sphereSystem) sphereSystem.rotation.y -= 0.001;
+
         renderer.render(scene, camera);
       };
       animate();
@@ -132,7 +189,7 @@ const LidarForest = () => {
     };
   }, []);
 
-  return <div ref={mountRef} className="fixed top-0 left-0 w-full h-full z-0 pointer-events-none opacity-60" />;
+  return <div ref={mountRef} className="fixed top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100" />;
 };
 
 /**
@@ -266,17 +323,52 @@ const App = () => {
       <div className="relative z-20 bg-[#050505]">
         <div className="h-32 bg-gradient-to-b from-transparent to-[#050505] -mt-32 relative z-20 pointer-events-none" />
         
-        {/* Technical Stack */}
-        <Section title="Technical Arsenal">
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-            <SkillBadge icon={Terminal} name="R & Python" color="text-blue-400" category="Core" />
-            <SkillBadge icon={Cloud} name="Distributed Computing" color="text-sky-300" category="Cloud & DevOps" />
-            <SkillBadge icon={Database} name="ETL & Data Lakes" color="text-yellow-400" category="Big Data" />
-            <SkillBadge icon={Scan} name="LiDAR (ALS/TLS/MLS)" color="text-red-400" category="Remote Sensing" />
-            <SkillBadge icon={Cpu} name="Machine Learning/DL" color="text-purple-400" category="AI" />
-            <SkillBadge icon={Layers} name="PostgreSQL/GIS" color="text-green-400" category="Database" />
-            <SkillBadge icon={Github} name="CI/CD & Git" color="text-white" category="DevOps" />
-            <SkillBadge icon={TreePine} name="Forest Modeling" color="text-emerald-500" category="Domain" />
+        {/* Technical Stack (Refined Structure) */}
+        <Section title="Technical Stack">
+          <div className="grid md:grid-cols-3 gap-8">
+            
+            {/* Languages & Scripting */}
+            <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-8 hover:border-emerald-500/30 transition-colors">
+               <div className="flex items-center gap-3 mb-6 text-emerald-400">
+                  <Terminal className="w-6 h-6" />
+                  <h3 className="text-xl font-bold text-white">Languages & Scripting</h3>
+               </div>
+               <ul className="space-y-3 text-gray-400">
+                  <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-emerald-500"></div>R Programming (Advanced)</li>
+                  <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>Python (Geospatial/ML)</li>
+                  <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-yellow-500"></div>SQL / PostgreSQL</li>
+                  <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-purple-500"></div>Bash / Shell Scripting</li>
+               </ul>
+            </div>
+
+            {/* Geospatial & Deep Learning */}
+            <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-8 hover:border-blue-500/30 transition-colors">
+               <div className="flex items-center gap-3 mb-6 text-blue-400">
+                  <Cpu className="w-6 h-6" />
+                  <h3 className="text-xl font-bold text-white">Geospatial & Deep Learning</h3>
+               </div>
+               <ul className="space-y-3 text-gray-400">
+                  <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-red-500"></div>LiDAR (ALS/TLS/MLS)</li>
+                  <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-green-500"></div>ArcGIS Pro / QGIS</li>
+                  <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-indigo-500"></div>PyTorch / TensorFlow</li>
+                  <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-pink-500"></div>Computer Vision (CNNs)</li>
+               </ul>
+            </div>
+
+            {/* DevOps & Cloud */}
+            <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-8 hover:border-purple-500/30 transition-colors">
+               <div className="flex items-center gap-3 mb-6 text-purple-400">
+                  <Cloud className="w-6 h-6" />
+                  <h3 className="text-xl font-bold text-white">DevOps & Cloud</h3>
+               </div>
+               <ul className="space-y-3 text-gray-400">
+                  <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-sky-400"></div>Docker / Containers</li>
+                  <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-orange-400"></div>Distributed Computing</li>
+                  <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-white"></div>Git / CI/CD Pipelines</li>
+                  <li className="flex items-center gap-3"><div className="w-1.5 h-1.5 rounded-full bg-gray-400"></div>Cloud Architecture</li>
+               </ul>
+            </div>
+
           </div>
         </Section>
 
@@ -396,14 +488,6 @@ const App = () => {
                 active: true
               },
               {
-                role: "Reviewer",
-                org: "Elsevier (Dendrochronologia)",
-                loc: "Remote",
-                date: "Apr 2020 - Present",
-                desc: "Peer reviewer for high-quality research related to tree-ring science and woody plant growth.",
-                active: true
-              },
-              {
                 role: "Forest Carbon Technical Expert",
                 org: "UNFCCC",
                 loc: "Bonn, Germany",
@@ -504,12 +588,14 @@ const App = () => {
         {/* Footer */}
         <footer className="py-20 px-6 border-t border-gray-900 bg-black relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
-          <div className="max-w-4xl mx-auto text-center relative z-10">
+          <div className="max-w-6xl mx-auto text-center relative z-10">
             <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tighter text-white">Let's Collaborate</h2>
             <p className="text-lg text-gray-400 mb-12 max-w-xl mx-auto">
               Open to opportunities in Geospatial Data Science, Remote Sensing, and Precision Forestry.
             </p>
-            <div className="flex flex-col md:flex-row justify-center gap-6">
+            
+            <div className="flex flex-wrap justify-center gap-4 mb-16">
+              {/* Primary Buttons */}
               <a href="mailto:ergin@ualberta.ca" className="flex items-center justify-center gap-3 px-8 py-4 bg-white text-black font-bold rounded-full hover:bg-emerald-400 hover:text-white transition-colors">
                 <Mail className="w-5 h-5" />
                 ergin@ualberta.ca
@@ -518,8 +604,26 @@ const App = () => {
                 <Linkedin className="w-5 h-5" />
                 LinkedIn Profile
               </a>
+              <a href="https://github.com/ergincagataycankaya" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-8 py-4 bg-gray-900 text-white border border-gray-800 rounded-full hover:border-emerald-500 transition-colors">
+                <Github className="w-5 h-5" />
+                GitHub Profile
+              </a>
+
+              {/* Academic Network Buttons */}
+              <a href="https://orcid.org/0000-0003-2553-8707" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-8 py-4 bg-gray-900 text-white border border-gray-800 rounded-full hover:border-emerald-500 transition-colors">
+                <LinkIcon className="w-5 h-5" />
+                ORCID
+              </a>
+              <a href="https://www.growthandyield.ca/people" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-8 py-4 bg-gray-900 text-white border border-gray-800 rounded-full hover:border-emerald-500 transition-colors">
+                <TreePine className="w-5 h-5" />
+                Growth & Yield
+              </a>
+              <a href="https://apps.ualberta.ca/directory/person/ergin" target="_blank" rel="noopener noreferrer" className="flex items-center justify-center gap-3 px-8 py-4 bg-gray-900 text-white border border-gray-800 rounded-full hover:border-emerald-500 transition-colors">
+                <GraduationCap className="w-5 h-5" />
+                UAlberta Directory
+              </a>
             </div>
-            
+
             <div className="mt-24 text-gray-600 text-sm flex flex-col items-center gap-2">
               <p>© {new Date().getFullYear()} Ergin C. Cankaya.</p>
               <p className="text-xs opacity-50">Built with React, Three.js, & Tailwind</p>
