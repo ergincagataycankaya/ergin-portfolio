@@ -21,11 +21,17 @@ const useSmoothScroll = () => {
 
 /**
  * 3D BACKGROUND COMPONENT (Three.js)
- * Advanced Dual-Layer: LiDAR Forestry + Satellite Constellation
+ * Dynamic Camera Choreography based on Scroll Position
  * ------------------------------------------------------------------
  */
-const LidarForest = () => {
+const LidarForest = ({ scrollY }) => {
   const mountRef = useRef(null);
+  const scrollRef = useRef(0); // Ref to access scroll inside animation loop without re-render
+
+  // Sync prop to ref
+  useEffect(() => {
+    scrollRef.current = scrollY;
+  }, [scrollY]);
 
   useEffect(() => {
     const script = document.createElement('script');
@@ -48,7 +54,7 @@ const LidarForest = () => {
 
       // 2. Camera
       camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-      camera.position.set(0, 8, 35);
+      camera.position.set(0, 8, 35); // Initial position
 
       // 3. Renderer
       renderer = new THREE.WebGLRenderer({ alpha: true, antialias: true });
@@ -58,7 +64,7 @@ const LidarForest = () => {
 
       // --- LAYER 1: LiDAR TERRAIN (Bottom) ---
       const groundGeo = new THREE.BufferGeometry();
-      const groundCount = 15000;
+      const groundCount = 16000;
       const gPos = [];
       const gCols = [];
       const cWater = new THREE.Color(0x1e40af); // Deep Blue
@@ -66,36 +72,36 @@ const LidarForest = () => {
       const cHigh = new THREE.Color(0x10b981);   // Bright Emerald
 
       for (let i = 0; i < groundCount; i++) {
-        const x = (Math.random() - 0.5) * 300;
-        const z = (Math.random() - 0.5) * 300;
-        const y = Math.sin(x * 0.04) * Math.cos(z * 0.04) * 5 - 8;
+        const x = (Math.random() - 0.5) * 400; // Wider terrain
+        const z = (Math.random() - 0.5) * 400;
+        const y = Math.sin(x * 0.04) * Math.cos(z * 0.04) * 6 - 10;
 
         gPos.push(x, y, z);
 
         let color = cWater;
-        if (y > -9) color = cGround;
-        if (y > -6) color = cHigh;
+        if (y > -11) color = cGround;
+        if (y > -7) color = cHigh;
         gCols.push(color.r, color.g, color.b);
       }
       groundGeo.setAttribute('position', new THREE.Float32BufferAttribute(gPos, 3));
       groundGeo.setAttribute('color', new THREE.Float32BufferAttribute(gCols, 3));
-      const groundMat = new THREE.PointsMaterial({ size: 0.15, vertexColors: true, transparent: true, opacity: 0.6 });
+      const groundMat = new THREE.PointsMaterial({ size: 0.18, vertexColors: true, transparent: true, opacity: 0.6 });
       terrainSystem = new THREE.Points(groundGeo, groundMat);
       scene.add(terrainSystem);
 
       // Trees (Vertical Lines)
       const treeGeo = new THREE.BufferGeometry();
-      const treeCount = 2000;
+      const treeCount = 2500;
       const tPos = [];
       const tCols = [];
 
       for (let i = 0; i < treeCount; i++) {
-        const x = (Math.random() - 0.5) * 300;
-        const z = (Math.random() - 0.5) * 300;
-        const y = Math.sin(x * 0.04) * Math.cos(z * 0.04) * 5 - 8;
+        const x = (Math.random() - 0.5) * 400;
+        const z = (Math.random() - 0.5) * 400;
+        const y = Math.sin(x * 0.04) * Math.cos(z * 0.04) * 6 - 10;
 
-        if (y > -7) { 
-            const h = Math.random() * 4 + 2;
+        if (y > -8) { 
+            const h = Math.random() * 5 + 3;
             tPos.push(x, y, z);
             tPos.push(x, y + h, z);
             tCols.push(0.02, 0.3, 0.2); 
@@ -134,22 +140,54 @@ const LidarForest = () => {
       const ring1 = new THREE.Mesh(ringGeo, ringMat);
       ring1.rotation.x = Math.PI / 2;
       globeGroup.add(ring1);
-      const ring2 = new THREE.Mesh(ringGeo, ringMat);
-      ring2.rotation.x = Math.PI / 3;
-      ring2.rotation.y = Math.PI / 6;
-      globeGroup.add(ring2);
 
       // 4. Animation Loop
       const animate = () => {
         frameId = requestAnimationFrame(animate);
         
-        // Flyover effect
-        const speed = 0.08;
+        const currentScroll = scrollRef.current;
+        const maxScroll = document.body.scrollHeight - window.innerHeight;
+        const scrollProgress = Math.min(currentScroll / maxScroll, 1); // 0 to 1
+        
+        // --- DYNAMIC CAMERA CHOREOGRAPHY ---
+        // Define keyframes for camera position based on scroll (approx pixels)
+        let targetCamPos = { x: 0, y: 8, z: 35 };
+        let targetCamRot = { x: 0, y: 0, z: 0 };
+
+        if (currentScroll < 800) {
+            // HERO: Standard Flyover
+            targetCamPos = { x: 0, y: 8 + (currentScroll * 0.01), z: 35 };
+        } else if (currentScroll < 1800) {
+            // TECH STACK: High Altitude / Top Down View
+            targetCamPos = { x: 0, y: 30, z: 15 };
+            targetCamRot = { x: -0.5, y: 0, z: 0 }; // Tilt down
+        } else if (currentScroll < 2800) {
+            // PROJECTS: Side Angle / Cinematic
+            targetCamPos = { x: -20, y: 15, z: 30 };
+            targetCamRot = { x: -0.2, y: -0.5, z: 0 }; // Look right
+        } else {
+            // FOOTER: Pull back / Wide shot
+            targetCamPos = { x: 0, y: 40, z: 60 };
+            targetCamRot = { x: -0.4, y: 0, z: 0 };
+        }
+
+        // Smooth Interpolation (Lerp)
+        camera.position.x += (targetCamPos.x - camera.position.x) * 0.02;
+        camera.position.y += (targetCamPos.y - camera.position.y) * 0.02;
+        camera.position.z += (targetCamPos.z - camera.position.z) * 0.02;
+        
+        // Simple rotation lerp (Quaternion is better but Euler is fine for small tilts)
+        camera.rotation.x += (targetCamRot.x - camera.rotation.x) * 0.02;
+        camera.rotation.y += (targetCamRot.y - camera.rotation.y) * 0.02;
+
+
+        // --- FLYOVER EFFECT ---
+        const speed = 0.1 + (scrollProgress * 0.2); // Speed up as you scroll down
         if(terrainSystem) {
             const pos = terrainSystem.geometry.attributes.position.array;
             for(let i=2; i<pos.length; i+=3) {
                 pos[i] += speed;
-                if(pos[i] > 30) pos[i] -= 300;
+                if(pos[i] > 50) pos[i] -= 400; // Recycle further back
             }
             terrainSystem.geometry.attributes.position.needsUpdate = true;
         }
@@ -157,13 +195,17 @@ const LidarForest = () => {
              const pos = treeSystem.geometry.attributes.position.array;
              for(let i=2; i<pos.length; i+=3) {
                  pos[i] += speed;
-                 if(pos[i] > 30) pos[i] -= 300;
+                 if(pos[i] > 50) pos[i] -= 400;
              }
              treeSystem.geometry.attributes.position.needsUpdate = true;
         }
 
-        // Globe rotation
-        if(globeGroup) globeGroup.rotation.y += 0.002;
+        // --- GLOBE ANIMATION ---
+        if(globeGroup) {
+            globeGroup.rotation.y += 0.002 + (scrollProgress * 0.01); // Spin faster
+            // Move globe slightly based on scroll
+            globeGroup.position.y = 12 + Math.sin(currentScroll * 0.002) * 2;
+        }
         if(sphereSystem) sphereSystem.rotation.y -= 0.001;
 
         renderer.render(scene, camera);
@@ -187,7 +229,7 @@ const LidarForest = () => {
         mountRef.current.removeChild(mountRef.current.firstChild);
       }
     };
-  }, []);
+  }, []); // No dependency on scrollY to avoid re-init
 
   return <div ref={mountRef} className="fixed top-0 left-0 w-full h-full z-0 pointer-events-none opacity-100" />;
 };
@@ -258,8 +300,8 @@ const App = () => {
   return (
     <div className="bg-[#050505] min-h-screen text-white font-sans selection:bg-emerald-500/30 selection:text-emerald-200 overflow-x-hidden">
       
-      {/* 3D Background */}
-      <LidarForest />
+      {/* 3D Background - Now receives scrollY prop */}
+      <LidarForest scrollY={scrollY} />
 
       {/* Navigation */}
       <nav className="fixed top-0 left-0 w-full z-50 px-6 py-6 flex justify-between items-center backdrop-blur-md bg-black/20 border-b border-white/5">
@@ -319,16 +361,16 @@ const App = () => {
         </div>
       </header>
 
-      {/* Content Wrapper */}
-      <div className="relative z-20 bg-[#050505]">
-        <div className="h-32 bg-gradient-to-b from-transparent to-[#050505] -mt-32 relative z-20 pointer-events-none" />
+      {/* Content Wrapper - REMOVED SOLID BACKGROUND HERE */}
+      <div className="relative z-20">
+        {/* REMOVED GRADIENT DIV HERE */}
         
         {/* Technical Stack (Refined Structure) */}
         <Section title="Technical Stack">
           <div className="grid md:grid-cols-3 gap-8">
             
             {/* Languages & Scripting */}
-            <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-8 hover:border-emerald-500/30 transition-colors">
+            <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-8 hover:border-emerald-500/30 transition-colors backdrop-blur-sm">
                <div className="flex items-center gap-3 mb-6 text-emerald-400">
                   <Terminal className="w-6 h-6" />
                   <h3 className="text-xl font-bold text-white">Languages & Scripting</h3>
@@ -342,7 +384,7 @@ const App = () => {
             </div>
 
             {/* Geospatial & Deep Learning */}
-            <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-8 hover:border-blue-500/30 transition-colors">
+            <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-8 hover:border-blue-500/30 transition-colors backdrop-blur-sm">
                <div className="flex items-center gap-3 mb-6 text-blue-400">
                   <Cpu className="w-6 h-6" />
                   <h3 className="text-xl font-bold text-white">Geospatial & Deep Learning</h3>
@@ -356,7 +398,7 @@ const App = () => {
             </div>
 
             {/* DevOps & Cloud */}
-            <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-8 hover:border-purple-500/30 transition-colors">
+            <div className="bg-gray-900/40 border border-gray-800 rounded-2xl p-8 hover:border-purple-500/30 transition-colors backdrop-blur-sm">
                <div className="flex items-center gap-3 mb-6 text-purple-400">
                   <Cloud className="w-6 h-6" />
                   <h3 className="text-xl font-bold text-white">DevOps & Cloud</h3>
@@ -421,7 +463,7 @@ const App = () => {
         <Section title="Education Background">
           <div className="grid md:grid-cols-2 gap-6">
             
-            <div className="flex gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors">
+            <div className="flex gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors backdrop-blur-sm">
                <div className="w-12 h-12 rounded-full bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-emerald-500 group-hover:text-black transition-all">
                   <GraduationCap className="w-6 h-6" />
                </div>
@@ -432,7 +474,7 @@ const App = () => {
                </div>
             </div>
 
-            <div className="flex gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors">
+            <div className="flex gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors backdrop-blur-sm">
                <div className="w-12 h-12 rounded-full bg-blue-500/10 border border-blue-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-blue-500 group-hover:text-black transition-all">
                   <GraduationCap className="w-6 h-6" />
                </div>
@@ -443,7 +485,7 @@ const App = () => {
                </div>
             </div>
 
-            <div className="flex gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors">
+            <div className="flex gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors backdrop-blur-sm">
                <div className="w-12 h-12 rounded-full bg-gray-500/10 border border-gray-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-gray-400 group-hover:text-black transition-all">
                   <BookOpen className="w-6 h-6" />
                </div>
@@ -458,7 +500,7 @@ const App = () => {
                </div>
             </div>
 
-            <div className="flex gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors">
+            <div className="flex gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors backdrop-blur-sm">
                <div className="w-12 h-12 rounded-full bg-purple-500/10 border border-purple-500/20 flex items-center justify-center flex-shrink-0 group-hover:bg-purple-500 group-hover:text-black transition-all">
                   <Plane className="w-6 h-6" />
                </div>
@@ -533,21 +575,21 @@ const App = () => {
         {/* Certifications Section */}
         <Section title="Certifications & Licenses" id="certifications">
           <div className="grid md:grid-cols-3 gap-6">
-            <div className="bg-gray-900/30 border border-gray-800 p-6 rounded-xl hover:bg-emerald-900/10 transition-colors">
+            <div className="bg-gray-900/30 border border-gray-800 p-6 rounded-xl hover:bg-emerald-900/10 transition-colors backdrop-blur-sm">
               <Plane className="w-8 h-8 text-emerald-400 mb-4" />
               <h3 className="font-bold text-white mb-1">RPAS Pilot Certificate</h3>
               <p className="text-gray-400 text-sm">Small Remotely Piloted Aircraft System (VLOS)</p>
               <p className="text-xs text-gray-500 mt-2">Transport Canada (2023)</p>
             </div>
 
-            <div className="bg-gray-900/30 border border-gray-800 p-6 rounded-xl hover:bg-emerald-900/10 transition-colors">
+            <div className="bg-gray-900/30 border border-gray-800 p-6 rounded-xl hover:bg-emerald-900/10 transition-colors backdrop-blur-sm">
               <FileText className="w-8 h-8 text-blue-400 mb-4" />
               <h3 className="font-bold text-white mb-1">GIS & Remote Sensing</h3>
               <p className="text-gray-400 text-sm">Advanced ArcGIS & Data Manipulation in R</p>
               <p className="text-xs text-gray-500 mt-2">Multiple Certifications</p>
             </div>
 
-            <div className="bg-gray-900/30 border border-gray-800 p-6 rounded-xl hover:bg-emerald-900/10 transition-colors">
+            <div className="bg-gray-900/30 border border-gray-800 p-6 rounded-xl hover:bg-emerald-900/10 transition-colors backdrop-blur-sm">
               <Code className="w-8 h-8 text-yellow-400 mb-4" />
               <h3 className="font-bold text-white mb-1">R Programming</h3>
               <p className="text-gray-400 text-sm">Kodex IT R&D Unit</p>
@@ -558,7 +600,7 @@ const App = () => {
 
         {/* Awards Section */}
         <Section>
-          <div className="bg-gradient-to-r from-gray-900 to-gray-900/50 border border-gray-800 rounded-3xl p-8 md:p-12 relative overflow-hidden">
+          <div className="bg-gradient-to-r from-gray-900 to-gray-900/50 border border-gray-800 rounded-3xl p-8 md:p-12 relative overflow-hidden backdrop-blur-sm">
             <div className="absolute top-0 right-0 w-64 h-64 bg-emerald-500/10 blur-3xl rounded-full -mr-32 -mt-32" />
             
             <div className="relative z-10">
@@ -585,8 +627,8 @@ const App = () => {
           </div>
         </Section>
 
-        {/* Footer */}
-        <footer className="py-20 px-6 border-t border-gray-900 bg-black relative overflow-hidden">
+        {/* Footer - TRANSPARENT/BLURRED BACKGROUND */}
+        <footer className="py-20 px-6 border-t border-gray-900 bg-black/40 backdrop-blur-xl relative overflow-hidden">
           <div className="absolute inset-0 bg-[url('https://grainy-gradients.vercel.app/noise.svg')] opacity-20" />
           <div className="max-w-6xl mx-auto text-center relative z-10">
             <h2 className="text-4xl md:text-6xl font-bold mb-8 tracking-tighter text-white">Let's Collaborate</h2>
