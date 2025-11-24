@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Github, Linkedin, Mail, ChevronDown, Code, Database, TreePine, Scan, Layers, Terminal, Award, BookOpen, Cloud, Cpu, Plane, FileText, GraduationCap, Globe, Link as LinkIcon, Send, ArrowUp } from 'lucide-react';
+import { Github, Linkedin, Mail, ChevronDown, Code, Database, TreePine, Scan, Layers, Terminal, Award, BookOpen, Cloud, Cpu, Plane, FileText, GraduationCap, Globe, Link as LinkIcon, Send, ArrowUp, ScrollText, ExternalLink } from 'lucide-react';
 
 /**
  * UTILITIES & HOOKS
@@ -621,38 +621,45 @@ const App = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             
             {/* Ph.D. - University of Alberta */}
-            <a href="https://www.ualberta.ca" target="_blank" rel="noopener noreferrer" className="flex gap-4 md:gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors backdrop-blur-sm cursor-pointer hover:border-emerald-500/30">
-               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-emerald-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <div className="flex gap-4 md:gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors backdrop-blur-sm hover:border-emerald-500/30">
+               <a href="https://www.ualberta.ca" target="_blank" rel="noopener noreferrer" className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-emerald-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden cursor-pointer">
                   <img src="https://logo.clearbit.com/ualberta.ca" alt="UAlberta Logo" className="w-full h-full object-contain p-1" />
-               </div>
+               </a>
                <div>
-                  <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">Ph.D. in Renewable Resources</h3>
+                  <a href="https://www.ualberta.ca" target="_blank" rel="noopener noreferrer">
+                    <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-emerald-400 transition-colors">Ph.D. in Renewable Resources</h3>
+                  </a>
                   <p className="text-emerald-200/80 font-mono text-xs md:text-sm mb-2">University of Alberta • 2023 - Present</p>
                   <p className="text-gray-400 text-xs md:text-sm">Thesis: Advancing Precision Forestry with Proximal Sensing. <br/>Advisor: Dr. Robert E. Froese</p>
                </div>
-            </a>
+            </div>
 
             {/* M.Sc. - Virginia Tech */}
-            <a href="https://www.vt.edu" target="_blank" rel="noopener noreferrer" className="flex gap-4 md:gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors backdrop-blur-sm cursor-pointer hover:border-blue-500/30">
-               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-blue-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <div className="flex gap-4 md:gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors backdrop-blur-sm hover:border-blue-500/30">
+               <a href="https://www.vt.edu" target="_blank" rel="noopener noreferrer" className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-blue-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden cursor-pointer">
                   <img src="https://logo.clearbit.com/vt.edu" alt="Virginia Tech Logo" className="w-full h-full object-contain p-1" />
-               </div>
+               </a>
                <div>
-                  <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-blue-400 transition-colors">M.Sc. in Forestry</h3>
+                  <a href="https://www.vt.edu" target="_blank" rel="noopener noreferrer">
+                    <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-blue-400 transition-colors">M.Sc. in Forestry</h3>
+                  </a>
                   <p className="text-blue-200/80 font-mono text-xs md:text-sm mb-2">Virginia Tech • 2016 - 2018</p>
-                  <p className="text-gray-400 text-xs md:text-sm">Thesis: <span className="hover:underline hover:text-blue-400 transition-colors">Testing methods for calibrating Forest Vegetation Simulator (FVS) diameter growth predictions</span><br/>Advisor: Dr. Harold Burkhart</p>
+                  <p className="text-gray-400 text-xs md:text-sm">Thesis: <a href="https://vtechworks.lib.vt.edu/items/f37b61cb-f986-49b6-8a2a-15d25e2ea679" target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-blue-400 transition-colors">Testing methods for calibrating Forest Vegetation Simulator (FVS) diameter growth predictions</a><br/>Advisor: Dr. Harold Burkhart</p>
                </div>
-            </a>
+            </div>
 
             {/* B.Sc. - Sutcu Imam & Anadolu */}
-            <a href="https://www.ksu.edu.tr" target="_blank" rel="noopener noreferrer" className="flex gap-4 md:gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors backdrop-blur-sm cursor-pointer hover:border-yellow-500/30">
-               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-yellow-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <div className="flex gap-4 md:gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors backdrop-blur-sm hover:border-yellow-500/30">
+               <a href="https://www.ksu.edu.tr" target="_blank" rel="noopener noreferrer" className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-yellow-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden cursor-pointer">
                   <img src="https://logo.clearbit.com/ksu.edu.tr" alt="KSU Logo" className="w-full h-full object-contain p-1" />
-               </div>
+               </a>
                <div>
                   <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-gray-200 transition-colors">B.Sc. Degrees</h3>
-                  <p className="text-gray-400 text-xs md:text-sm mt-2 flex items-center gap-2">
+                  <a href="https://www.ksu.edu.tr" target="_blank" rel="noopener noreferrer" className="text-gray-400 text-xs md:text-sm mt-2 flex items-center gap-2 hover:text-yellow-400 transition-colors">
                     <span className="text-white font-bold">Forest Engineering</span> • Sutcu Imam Univ.
+                  </a>
+                  <p className="text-gray-400 text-xs md:text-sm mt-1 mb-2">
+                    Thesis: <a href="https://www.researchgate.net/publication/357672195_Study_of_Open_and_Green_Areas_of_Historical_Urban_Park_Stadtpark_in_Vienna-Austria" target="_blank" rel="noopener noreferrer" className="hover:underline hover:text-yellow-400 transition-colors">Study of Open and Green Areas of Historical Urban Park (Stadtpark) in Vienna-Austria</a>
                   </p>
                   <div className="mt-2 pt-2 border-t border-white/5 flex items-center gap-3">
                      <img src="https://logo.clearbit.com/anadolu.edu.tr" className="w-5 h-5 rounded-full bg-white p-0.5" alt="Anadolu" />
@@ -661,15 +668,17 @@ const App = () => {
                      </p>
                   </div>
                </div>
-            </a>
+            </div>
 
             {/* International - BOKU & UGA */}
-            <a href="https://boku.ac.at" target="_blank" rel="noopener noreferrer" className="flex gap-4 md:gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors backdrop-blur-sm cursor-pointer hover:border-purple-500/30">
-               <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-purple-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden">
+            <div className="flex gap-4 md:gap-6 items-start group bg-gray-900/20 p-6 rounded-2xl border border-white/5 hover:bg-gray-900/40 transition-colors backdrop-blur-sm hover:border-purple-500/30">
+               <a href="https://boku.ac.at" target="_blank" rel="noopener noreferrer" className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-white border border-purple-500/20 flex items-center justify-center flex-shrink-0 overflow-hidden cursor-pointer">
                   <img src="https://logo.clearbit.com/boku.ac.at" alt="BOKU Logo" className="w-full h-full object-contain p-1" />
-               </div>
+               </a>
                <div>
-                  <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-purple-400 transition-colors">International Programs</h3>
+                  <a href="https://boku.ac.at" target="_blank" rel="noopener noreferrer">
+                    <h3 className="text-lg md:text-xl font-bold text-white group-hover:text-purple-400 transition-colors">International Programs</h3>
+                  </a>
                   <p className="text-purple-200/80 font-mono text-xs md:text-sm mb-2">BOKU Vienna • Erasmus Internship</p>
                   <div className="mt-2 pt-2 border-t border-white/5 flex items-center gap-3">
                      <img src="https://logo.clearbit.com/uga.edu" className="w-5 h-5 rounded-full bg-white p-0.5" alt="UGA" />
@@ -678,8 +687,78 @@ const App = () => {
                      </p>
                   </div>
                </div>
+            </div>
+
+          </div>
+        </Section>
+
+        {/* Publications - NEW Section, below Education */}
+        <Section title="Publications" id="publications">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+            <a href="https://link.springer.com/article/10.1007/s44391-025-00044-6" target="_blank" rel="noopener noreferrer" className="group relative p-6 bg-gray-900/60 backdrop-blur-lg border border-gray-800 hover:border-emerald-500/50 rounded-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl shadow-black/50 flex flex-col h-full">
+                <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-blue-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 flex flex-col h-full">
+                    <div className="flex items-start justify-between mb-4">
+                        <ScrollText className="w-8 h-8 text-emerald-400" />
+                        <ExternalLink className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-emerald-400 transition-colors">FVS Calibration</h3>
+                    <p className="text-gray-400 text-sm mb-4 flex-grow">Evaluating Local Calibration Methods for Improving Diameter Growth Predictions in the Southern Variant, Forest Vegetation Simulator (FVS-Sn).</p>
+                    <span className="text-xs font-mono text-emerald-500/80 border border-emerald-500/20 px-2 py-1 rounded w-fit">Springer Link</span>
+                </div>
             </a>
 
+            <a href="https://doi.org/10.57165/artgrid.1709260" target="_blank" rel="noopener noreferrer" className="group relative p-6 bg-gray-900/60 backdrop-blur-lg border border-gray-800 hover:border-blue-500/50 rounded-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl shadow-black/50 flex flex-col h-full">
+                <div className="absolute inset-0 bg-gradient-to-br from-blue-500/5 to-purple-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 flex flex-col h-full">
+                    <div className="flex items-start justify-between mb-4">
+                        <Cpu className="w-8 h-8 text-blue-400" />
+                        <ExternalLink className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-blue-400 transition-colors">U-Net Deep Learning</h3>
+                    <p className="text-gray-400 text-sm mb-4 flex-grow">Advancing Forest Land Monitoring Integrating U-Net Deep Learning.</p>
+                    <span className="text-xs font-mono text-blue-500/80 border border-blue-500/20 px-2 py-1 rounded w-fit">ArtGrid</span>
+                </div>
+            </a>
+
+            <a href="https://www.tandfonline.com/doi/full/10.1080/11956860.2017.1354579?utm_source=researchgate.net&medium=article" target="_blank" rel="noopener noreferrer" className="group relative p-6 bg-gray-900/60 backdrop-blur-lg border border-gray-800 hover:border-yellow-500/50 rounded-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl shadow-black/50 flex flex-col h-full">
+                <div className="absolute inset-0 bg-gradient-to-br from-yellow-500/5 to-red-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 flex flex-col h-full">
+                    <div className="flex items-start justify-between mb-4">
+                        <TreePine className="w-8 h-8 text-yellow-400" />
+                        <ExternalLink className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-yellow-400 transition-colors">Dendroarchaeology</h3>
+                    <p className="text-gray-400 text-sm mb-4 flex-grow">Dendroarchaeology reveals influence of early-European settlement on forest disturbance regimes in the Appalachian Mountains, USA.</p>
+                    <span className="text-xs font-mono text-yellow-500/80 border border-yellow-500/20 px-2 py-1 rounded w-fit">Taylor & Francis</span>
+                </div>
+            </a>
+
+            <a href="https://doi.org/10.17568/ogmoad.1016879" target="_blank" rel="noopener noreferrer" className="group relative p-6 bg-gray-900/60 backdrop-blur-lg border border-gray-800 hover:border-red-500/50 rounded-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl shadow-black/50 flex flex-col h-full">
+                <div className="absolute inset-0 bg-gradient-to-br from-red-500/5 to-orange-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 flex flex-col h-full">
+                    <div className="flex items-start justify-between mb-4">
+                        <Scan className="w-8 h-8 text-red-400" />
+                        <ExternalLink className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-red-400 transition-colors">Mobile LiDAR</h3>
+                    <p className="text-gray-400 text-sm mb-4 flex-grow">Using handheld mobile LiDAR technology in forest inventories.</p>
+                    <span className="text-xs font-mono text-red-500/80 border border-red-500/20 px-2 py-1 rounded w-fit">OGM Journal</span>
+                </div>
+            </a>
+
+            <a href="https://forestist.org/en/single-and-double-entry-volume-equations-for-turkey-oak-quercus-cerris-l-stands-in-bursa-regional-directorate-of-forestry-132727" target="_blank" rel="noopener noreferrer" className="group relative p-6 bg-gray-900/60 backdrop-blur-lg border border-gray-800 hover:border-green-500/50 rounded-2xl transition-all duration-500 hover:-translate-y-2 overflow-hidden shadow-2xl shadow-black/50 flex flex-col h-full">
+                <div className="absolute inset-0 bg-gradient-to-br from-green-500/5 to-emerald-500/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <div className="relative z-10 flex flex-col h-full">
+                    <div className="flex items-start justify-between mb-4">
+                        <Layers className="w-8 h-8 text-green-400" />
+                        <ExternalLink className="w-5 h-5 text-gray-500 group-hover:text-white transition-colors" />
+                    </div>
+                    <h3 className="text-lg font-bold text-white mb-2 group-hover:text-green-400 transition-colors">Volume Equations</h3>
+                    <p className="text-gray-400 text-sm mb-4 flex-grow">Single- and Double-Entry Volume Equations for Turkey Oak (Quercus cerris L.) Stands.</p>
+                    <span className="text-xs font-mono text-green-500/80 border border-green-500/20 px-2 py-1 rounded w-fit">Forestist</span>
+                </div>
+            </a>
           </div>
         </Section>
 
